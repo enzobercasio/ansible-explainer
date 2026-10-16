@@ -1,0 +1,96 @@
+# Host the explainers on OpenShift - handy when the audience will run AAP
+# on OpenShift with the Operator.
+#
+#   oc new-project ansible-explainer
+#   oc apply -f deploy/openshift.yaml
+#   oc start-build ansible-explainer --from-dir=. --follow
+#   oc get route ansible-explainer
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: ansible-explainer
+  labels: {app: ansible-explainer}
+spec:
+  lookupPolicy: {local: true}
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ansible-explainer
+  labels: {app: ansible-explainer}
+spec:
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Containerfile
+  output:
+    to: {kind: ImageStreamTag, name: 'ansible-explainer:latest'}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansible-explainer
+  labels: {app: ansible-explainer}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: ansible-explainer}
+  template:
+    metadata:
+      labels: {app: ansible-explainer}
+    spec:
+      # Two replicas spread across zones, with a PDB below.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels: {app: ansible-explainer}
+      containers:
+        - name: web
+          image: ansible-explainer:latest
+          ports: [{containerPort: 8080}]
+          readinessProbe:
+            httpGet: {path: /index.html, port: 8080}
+            periodSeconds: 5
+          resources:
+            requests: {cpu: 20m, memory: 64Mi}
+            limits: {cpu: 100m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities: {drop: ["ALL"]}
+            seccompProfile: {type: RuntimeDefault}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ansible-explainer
+  labels: {app: ansible-explainer}
+spec:
+  selector: {app: ansible-explainer}
+  ports: [{name: http, port: 8080, targetPort: 8080}]
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ansible-explainer
+  labels: {app: ansible-explainer}
+spec:
+  to: {kind: Service, name: ansible-explainer}
+  port: {targetPort: http}
+  tls: {termination: edge, insecureEdgeTerminationPolicy: Redirect}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ansible-explainer
+  labels: {app: ansible-explainer}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels: {app: ansible-explainer}

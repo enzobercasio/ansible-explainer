@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playbook Runner — Ansible explained</title>
+<meta name="description" content="Step through real Ansible playbooks against a simulated fleet: the code, the hosts and the ansible-playbook output, side by side.">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/runner.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span><a href="index.html" class="home">Ansible explained</a> <span class="brand-dim">— Part 1 · Playbook Runner</span></span>
+  </div>
+  <div class="topbar-actions">
+    <a class="icon-btn" href="aap.html" title="Part 2: the AAP 2.7 System Map">Part 2 · System Map →</a>
+    <button id="btn-notes" class="icon-btn" aria-pressed="false" title="Speaker notes (n)">Notes</button>
+    <button id="btn-theme" class="icon-btn" title="Toggle light/dark (t)">Theme</button>
+    <button id="btn-present" class="icon-btn" aria-pressed="false" title="Presentation mode (f)">Present</button>
+    <button id="btn-help" class="icon-btn" title="Keyboard shortcuts (?)">?</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Chapters">
+    <p class="group-label">Ansible basics</p>
+    <ol id="chapters" class="chapters"></ol>
+    <p class="sidebar-foot">
+      One fleet throughout: <b>web1</b> and <b>web2</b> on RHEL 9, <b>db1</b> on Ubuntu.
+      Output is simulated, but shaped exactly like <code>ansible-playbook</code>.
+    </p>
+    <p class="sidebar-foot">Deep-link any moment:<br><code>#chapter/actions/step</code></p>
+  </nav>
+
+  <main class="stage">
+    <div class="stage-head">
+      <h1 id="title">Loading…</h1>
+      <p id="summary" class="summary"></p>
+    </div>
+
+    <section class="workspace" aria-label="Playbook, fleet and terminal">
+      <div class="pane code-pane">
+        <div id="tabs" class="file-tabs" role="tablist" aria-label="Files"></div>
+        <pre id="code" class="code" aria-live="off"></pre>
+      </div>
+      <div class="right-col">
+        <div id="fleet" class="fleet" aria-label="Managed hosts"></div>
+        <div class="pane terminal">
+          <div class="term-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>control node — bash</span></div>
+          <pre id="term" class="term-body" aria-live="polite"></pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="narration">
+      <p id="note" class="note"></p>
+      <p id="badge" class="badge"></p>
+    </div>
+
+    <div class="controls">
+      <div class="transport">
+        <button id="btn-play" class="play-btn" aria-label="Play or pause">▶</button>
+        <button id="btn-prev" class="icon-btn" aria-label="Previous step">←</button>
+        <button id="btn-next" class="icon-btn" aria-label="Next step">→</button>
+        <input id="scrub" type="range" min="0" max="0" step="1" value="0" aria-label="Scrub through steps">
+        <span id="counter" class="counter">1 / 1</span>
+        <label class="speed">Speed
+          <select id="speed" aria-label="Playback speed">
+            <option value="2400">slow</option>
+            <option value="1500" selected>normal</option>
+            <option value="800">fast</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions-row">
+        <span class="actions-label">Do something</span>
+        <div id="actions" class="actions" role="group" aria-label="Actions"></div>
+        <button id="btn-reset" class="icon-btn tiny" title="Reset this chapter (r)">↺ Reset</button>
+      </div>
+      <p id="history" class="history"></p>
+    </div>
+  </main>
+
+  <aside id="notes-panel" class="notes-panel" hidden aria-label="Speaker notes">
+    <h2>Speaker notes</h2>
+    <div id="notes-body"></div>
+  </aside>
+</div>
+
+<div id="help" class="help-overlay" hidden role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="help-card">
+    <h2>Keyboard</h2>
+    <dl>
+      <dt>Space</dt><dd>play / pause — at the end, runs the suggested next action</dd>
+      <dt>← →</dt><dd>step back / forward</dd>
+      <dt>Home / End</dt><dd>first / last step</dd>
+      <dt>1 – 9</dt><dd>fire an action</dd>
+      <dt>J / K</dt><dd>previous / next chapter</dd>
+      <dt>R</dt><dd>reset the chapter</dd>
+      <dt>N</dt><dd>speaker notes</dd>
+      <dt>T</dt><dd>light / dark</dd>
+      <dt>F</dt><dd>presentation mode</dd>
+      <dt>Esc</dt><dd>close / leave presentation</dd>
+    </dl>
+    <button id="help-close" class="icon-btn">Close</button>
+  </div>
+</div>
+
+<noscript><p style="padding:2rem">The Playbook Runner is rendered client-side and needs JavaScript enabled.</p></noscript>
+<script type="module" src="js/runner/app.js"></script>
+</body>
+</html>

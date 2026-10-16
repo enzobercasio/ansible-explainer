@@ -1,0 +1,84 @@
+/* Design tokens. Light and dark are declared here and nowhere else - every
+   other stylesheet and every animation module must reference these variables
+   rather than hardcoding a colour, or dark mode breaks. */
+:root {
+  --surface-0: #faf9f7;
+  --surface-1: #ffffff;
+  --surface-2: #f3f1ec;
+  --text-primary: #1f1f1d;
+  --text-secondary: #5f5e5a;
+  --text-muted: #8a8880;
+  --border: #e2dfd8;
+  --border-strong: #c9c5bb;
+  --accent: #185fa5;
+  --accent-bg: #e6f1fb;
+
+  /* semantic state colours used by metrics and status text */
+  --ok-text: #0f6e56;
+  --warn-text: #854f0b;
+  --bad-text: #a32d2d;
+
+  /* animation ramps: fill / stroke / text, one triple per state */
+  --run-fill: #e1f5ee;   --run-stroke: #0f6e56;  --run-text: #04342c;
+  --term-fill: #faeeda;  --term-stroke: #ba7517; --term-text: #412402;
+  --pend-fill: #f1efe8;  --pend-stroke: #5f5e5a; --pend-text: #2c2c2a;
+  --node-fill: #ffffff;  --node-stroke: #c9c5bb;
+  --cordon-stroke: #ba7517;
+  --reboot-stroke: #888780;
+  --track: #d3d1c7;
+  --bad-fill: #fcebeb;   --bad-stroke: #a32d2d;  --bad-fg: #501313;
+  --hot-fill: #e6f1fb;   --hot-stroke: #185fa5;  --hot-fg: #042c53;
+  --zone-fill: #f6f4f0;
+  --packet: #185fa5;
+  --brand: #ee0000;
+
+  /* terminal: dark in both themes */
+  --tty-bg: #1c1d22;  --tty-border: #2f3139;  --tty-fg: #e4e4e7;  --tty-dim: #8b8f98;
+  --tty-cmd: #9ecbff; --tty-ok: #6ad6a8;      --tty-chg: #f2c76e; --tty-fail: #ff8a8a;
+  --tty-skip: #6cc4e0;
+
+  --radius: 8px;
+  --font-sans: "Red Hat Text", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Red Hat Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+:root[data-theme="dark"] {
+  --surface-0: #16161a;
+  --surface-1: #1e1e22;
+  --surface-2: #26262b;
+  --text-primary: #eceae4;
+  --text-secondary: #b4b2a9;
+  --text-muted: #888780;
+  --border: #33333a;
+  --border-strong: #4a4a52;
+  --accent: #85b7eb;
+  --accent-bg: #12243a;
+
+  --ok-text: #5dcaa5;
+  --warn-text: #fac775;
+  --bad-text: #f09595;
+
+  --run-fill: #085041;   --run-stroke: #5dcaa5;  --run-text: #e1f5ee;
+  --term-fill: #633806;  --term-stroke: #fac775; --term-text: #faeeda;
+  --pend-fill: #2c2c2a;  --pend-stroke: #b4b2a9; --pend-text: #f1efe8;
+  --node-fill: #1e1e22;  --node-stroke: #4a4a52;
+  --cordon-stroke: #efa127;
+  --reboot-stroke: #9c9a92;
+  --track: #4a4a52;
+  --bad-fill: #501313;   --bad-stroke: #f09595;  --bad-fg: #fcebeb;
+  --hot-fill: #0c2f52;   --hot-stroke: #85b7eb;  --hot-fg: #e6f1fb;
+  --zone-fill: #1a1a1e;
+  --packet: #85b7eb;
+  --brand: #ff4d4d;
+  --tty-bg: #111216;  --tty-border: #2a2c33;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Packets stand still without motion, so hide them; the dashed active
+   connector already carries direction. */
+@media (prefers-reduced-motion: reduce) {
+  .packet { display: none; }
+}

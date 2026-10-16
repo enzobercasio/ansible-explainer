@@ -1,0 +1,444 @@
+* { box-sizing: border-box; }
+
+/* Any author-level `display` declaration beats the user-agent's
+   `[hidden] { display: none }` rule. Several elements here are toggled from JS
+   via the hidden attribute AND carry a display rule (.help-overlay, .tabs), so
+   without this guard they stay visible: the shortcuts overlay renders on page
+   load and its close button appears to do nothing. Keep this rule. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--surface-0);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-1);
+  position: sticky; top: 0; z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 15px; }
+.brand-dim { color: var(--text-secondary); font-weight: 400; }
+.brand-mark {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--text-primary); color: var(--surface-1);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; line-height: 1;
+}
+.brand-mark::before { content: "A"; }
+.topbar-actions { display: flex; gap: 8px; }
+
+.icon-btn {
+  font: inherit; font-size: 13px;
+  padding: 5px 11px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.icon-btn:hover { background: var(--surface-2); }
+a.icon-btn { text-decoration: none; display: inline-flex; align-items: center; }
+.icon-btn[aria-pressed="true"] { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+
+/* Beginner/Advanced as a two-option radio group reads unambiguously as a
+   switch with a current position - a single button whose only feedback was a
+   color change looked like it wasn't doing anything. */
+.level-switch { display: flex; }
+.level-switch .icon-btn { border-radius: 0; }
+.level-switch .icon-btn:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.level-switch .icon-btn:last-child { border-radius: 0 var(--radius) var(--radius) 0; border-left: none; }
+.level-switch .icon-btn[aria-checked="true"] { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+.level-switch .icon-btn[aria-checked="true"] + .icon-btn { border-left-color: var(--accent); }
+
+/* ---------- layout ---------- */
+.layout { display: grid; grid-template-columns: var(--sidebar-w, 232px) 6px minmax(0, 1fr); gap: 0; align-items: start; }
+.sidebar {
+  padding: 20px 16px;
+  min-width: 0;
+  position: sticky; top: 53px;
+  height: calc(100vh - 53px);
+  overflow-y: auto;
+}
+/* A draggable column between sidebar and stage, not a border on either side of
+   it, so the hit area for dragging is wider than the visible line. */
+.sidebar-resizer {
+  position: sticky; top: 53px;
+  height: calc(100vh - 53px);
+  cursor: col-resize;
+  touch-action: none;
+}
+.sidebar-resizer::before {
+  content: ""; display: block; margin: 0 auto;
+  width: 1px; height: 100%;
+  background: var(--border);
+}
+.sidebar-resizer:hover::before,
+.sidebar-resizer.dragging::before { width: 2px; background: var(--accent); }
+.sidebar-resizer:focus-visible { outline: none; }
+.sidebar-resizer:focus-visible::before { width: 2px; background: var(--accent); }
+.sidebar-label, .sidebar-foot {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-muted); margin: 0 0 10px;
+}
+.sidebar-foot { text-transform: none; letter-spacing: 0; margin-top: 24px; line-height: 1.6; }
+
+/* Shown only in beginner mode, so hidden material is always one click from
+   coming back. Content that silently disappears is worse than content that is
+   merely grouped. */
+.level-hint {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 12px; line-height: 1.5;
+  margin-top: 16px; padding: 9px 11px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.level-hint:hover { background: var(--surface-2); color: var(--text-primary); }
+.sidebar-foot code { font-family: var(--font-mono); font-size: 11px; }
+.sidebar-foot a { color: var(--accent); text-decoration: none; }
+.sidebar-foot a:hover { text-decoration: underline; }
+
+.anim-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.anim-list button {
+  width: 100%; text-align: left; font: inherit; font-size: 14px;
+  padding: 9px 11px; border-radius: var(--radius);
+  background: transparent; color: var(--text-primary);
+  border: 1px solid transparent; cursor: pointer; line-height: 1.35;
+}
+.anim-list button:hover { background: var(--surface-2); }
+.anim-list button[aria-current="true"] {
+  background: var(--accent-bg); color: var(--accent); border-color: var(--accent);
+}
+.anim-list .num { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-right: 7px; }
+/* Group headings have to read as structure, not as decoration. An earlier
+   version used the same 11px muted style as the label they replaced and was
+   invisible in practice. */
+.anim-list .group-label {
+  font-size: 11.5px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin: 0 0 6px; padding: 0 11px;
+}
+.anim-list .group-label + li button { margin-top: 0; }
+.anim-list .group-label:not(:first-child) {
+  margin-top: 18px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* A second, static list of links styled the same as the animation list above
+   it, so these read as sidebar items rather than muted footer text. Its own
+   heading is a :first-child within this list, so the section divider is on
+   the list itself rather than reusing the group-label rule above. */
+.resource-list {
+  margin-top: 18px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.resource-list li { width: 100%; }
+.sidebar-link {
+  display: block; width: 100%; text-align: left; font: inherit; font-size: 14px;
+  padding: 9px 11px; border-radius: var(--radius);
+  background: transparent; color: var(--text-primary);
+  border: 1px solid transparent; cursor: pointer; line-height: 1.35;
+  text-decoration: none;
+}
+.sidebar-link:hover { background: var(--surface-2); }
+/* Deeper entries sit back a step from the core path without being hidden. */
+.anim-list li.deeper button { color: var(--text-secondary); }
+.anim-list li.deeper button:hover,
+.anim-list li.deeper button[aria-current="true"] { color: var(--text-accent, var(--accent)); }
+
+/* An advanced mode is marked, never hidden. A word beats a dot: the dot version
+   of this was too subtle to notice at presentation distance. */
+.tabs button.adv::after {
+  content: "advanced";
+  display: inline-block;
+  font-size: 9.5px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 1px 6px; margin-left: 8px;
+  border-radius: 999px;
+  background: var(--surface-2); color: var(--text-secondary);
+  vertical-align: 1px;
+}
+.tabs button.adv[aria-selected="true"]::after {
+  background: var(--accent); color: var(--surface-1);
+}
+
+.stage { padding: 24px 28px 56px; max-width: 960px; }
+.stage-head h1 { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+.summary { color: var(--text-secondary); font-size: 15px; margin: 0 0 18px; max-width: 60ch; }
+
+/* ---------- tabs ---------- */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tabs button {
+  font: inherit; font-size: 13px; padding: 6px 12px;
+  background: transparent; color: var(--text-primary);
+  border: 1px solid var(--border-strong); border-radius: var(--radius); cursor: pointer;
+}
+.tabs button:hover { background: var(--surface-2); }
+.tabs button[aria-selected="true"] { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+
+/* An anti-pattern mode demonstrates a specific misconfiguration with no
+   legitimate use - not a nuance to skip like "advanced", a mistake to
+   recognise. Red text survives hover and selection so it never reads as
+   merely "the current tab" once picked, and the pill names it outright
+   rather than leaving red-as-the-only-signal.
+   Note: a mode is never both .adv and .anti-pattern today - the two
+   ::after pills would collide, since an element gets only one. */
+.tabs button.anti-pattern { color: var(--bad-text); }
+.tabs button.anti-pattern::after {
+  content: "anti-pattern";
+  display: inline-block;
+  font-size: 9.5px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 1px 6px; margin-left: 8px;
+  border-radius: 999px;
+  background: var(--surface-2); color: var(--bad-text);
+  vertical-align: 1px;
+}
+.tabs button.anti-pattern[aria-selected="true"]::after {
+  background: var(--bad-text); color: var(--surface-1);
+}
+.caption { font-size: 13px; color: var(--text-secondary); margin: 8px 0 14px; min-height: 20px; }
+
+/* ---------- canvas ---------- */
+.viewport {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+#canvas { width: 100%; height: auto; display: block; }
+
+.svg-title { font-family: var(--font-sans); font-size: 14px; font-weight: 500; }
+.svg-sub   { font-family: var(--font-sans); font-size: 12px; }
+.svg-title.on-node, .svg-sub.on-node { fill: var(--text-primary); }
+.svg-sub.on-node { fill: var(--text-secondary); }
+
+.node-rect { fill: var(--node-fill); stroke: var(--node-stroke); stroke-width: 1; }
+.node-rect.cordoned { stroke: var(--cordon-stroke); stroke-dasharray: 6 4; }
+.node-rect.rebooting { stroke: var(--reboot-stroke); stroke-dasharray: 6 4; }
+.node-rect.failed { stroke: var(--term-stroke); stroke-dasharray: 3 3; }
+
+.pod rect { stroke-width: 1; }
+.pod.run  rect { fill: var(--run-fill);  stroke: var(--run-stroke); }
+.pod.term rect { fill: var(--term-fill); stroke: var(--term-stroke); stroke-dasharray: 4 3; }
+.pod.pend rect { fill: var(--pend-fill); stroke: var(--pend-stroke); stroke-dasharray: 2 4; }
+.pod.run  text { fill: var(--run-text); }
+.pod.term text { fill: var(--term-text); }
+.pod.pend text { fill: var(--pend-text); }
+.pod rect, .pod text { transition: fill 260ms ease, stroke 260ms ease; }
+
+.track-line { stroke: var(--track); stroke-width: 2; }
+
+/* ---------- Ansible additions ----------
+   Two more box states, a zone backdrop, directional connectors, and the
+   packet that travels a connector during a frame. Every frame is repainted
+   from scratch, so motion is CSS keyframes on freshly created elements: each
+   frame replays its own motion, and scrubbing backwards just works. */
+.pod.bad rect { fill: var(--bad-fill); stroke: var(--bad-stroke); stroke-width: 1.5; }
+.pod.bad text { fill: var(--bad-fg); }
+.pod.hot rect { fill: var(--hot-fill); stroke: var(--hot-stroke); stroke-width: 1.5; }
+.pod.hot text { fill: var(--hot-fg); }
+.pod.off rect { fill: var(--surface-1); stroke: var(--border); stroke-dasharray: 2 4; }
+.pod.off text { fill: var(--text-muted); }
+
+.zone { fill: var(--zone-fill); stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 5 4; }
+.zone.outline { fill: none; stroke: var(--text-muted); }
+.zone-label { font-family: var(--font-sans); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; fill: var(--text-muted); }
+.mono { font-family: var(--font-mono); font-size: 11px; }
+.svg-tiny { font-family: var(--font-sans); font-size: 10.5px; }
+.svg-tiny.on-node { fill: var(--text-secondary); }
+.mono.on-node { fill: var(--text-primary); }
+
+.flow-line { stroke: var(--track); stroke-width: 1.5; fill: none; }
+.flow-line.active {
+  stroke: var(--packet); stroke-width: 2; stroke-dasharray: 6 4;
+  animation: march 900ms linear infinite;
+}
+.flow-line.blocked { stroke: var(--bad-stroke); stroke-width: 2; stroke-dasharray: 3 3; }
+.flow-line.ok { stroke: var(--run-stroke); stroke-width: 2; }
+.arrow-head { fill: var(--track); }
+.arrow-head.active { fill: var(--packet); }
+.arrow-head.blocked { fill: var(--bad-stroke); }
+.arrow-head.ok { fill: var(--run-stroke); }
+.flow-label { font-family: var(--font-mono); font-size: 10.5px; fill: var(--text-secondary); }
+.flow-label.active { fill: var(--packet); }
+.flow-label.blocked { fill: var(--bad-text); }
+
+.packet circle { fill: var(--packet); stroke: var(--surface-1); stroke-width: 2; }
+.packet text { font-family: var(--font-mono); font-size: 10px; fill: var(--packet); font-weight: 600; }
+.packet {
+  offset-rotate: 0deg;
+  animation: travel calc(var(--frame-ms, 1000ms) * 0.85) cubic-bezier(.45,.05,.35,1) both;
+}
+.appear { animation: appear 420ms ease-out both; }
+.pulse rect { animation: pulse calc(var(--frame-ms, 1000ms) * 0.9) ease-in-out both; }
+.stamp { font-family: var(--font-mono); font-size: 10px; font-weight: 600; }
+.stamp.ok { fill: var(--ok-text); }
+.stamp.changed { fill: var(--warn-text); }
+.stamp.failed { fill: var(--bad-text); }
+.stamp.skip { fill: var(--text-muted); }
+
+@keyframes march { to { stroke-dashoffset: -20; } }
+@keyframes travel { from { offset-distance: 0%; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } to { offset-distance: 100%; opacity: 0; } }
+@keyframes appear { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0%, 100% { stroke-width: 1.5; } 50% { stroke-width: 4; } }
+.marker-line { stroke: var(--text-secondary); stroke-width: 1; stroke-dasharray: 3 3; }
+.legend-text { font-family: var(--font-sans); font-size: 12px; fill: var(--text-secondary); }
+
+/* ---------- metrics ---------- */
+.metrics {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px; margin-top: 14px;
+}
+.metric { background: var(--surface-2); border-radius: var(--radius); padding: 10px 12px; }
+.metric .m-label { font-size: 12px; color: var(--text-secondary); }
+.metric .m-value { font-size: 20px; font-weight: 500; margin-top: 2px; }
+.m-value.ok { color: var(--ok-text); }
+.m-value.warn { color: var(--warn-text); }
+.m-value.bad { color: var(--bad-text); }
+
+/* ---------- narration ---------- */
+.narration { margin-top: 16px; min-height: 52px; }
+.note { font-size: 16px; font-weight: 500; margin: 0; }
+.badge { font-size: 14px; color: var(--text-secondary); margin: 4px 0 0; }
+
+/* ---------- transport ---------- */
+.transport { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.play-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  font-size: 14px; line-height: 1; cursor: pointer;
+  background: var(--accent-bg); color: var(--accent);
+  border: 1px solid var(--accent);
+}
+#scrub { flex: 1; accent-color: var(--accent); }
+.counter { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); min-width: 56px; text-align: right; }
+.speed { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.speed select {
+  font: inherit; font-size: 12px; padding: 3px 6px;
+  background: var(--surface-1); color: var(--text-primary);
+  border: 1px solid var(--border-strong); border-radius: 6px;
+}
+
+/* ---------- config column ---------- */
+/* The manifest and the feature outline sit side by side so both are readable
+   without scrolling. The manifest gets the wider column - its longest lines are
+   ~48 monospace characters and horizontal scrolling in a live session is worse
+   than a slightly cramped prose column. */
+.config-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin-top: 20px;
+}
+.config-panel {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.panel-head h2 {
+  font-size: 12px; font-weight: 500; margin: 0;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);
+}
+.icon-btn.tiny { font-size: 11px; padding: 3px 8px; }
+
+.config-panel { align-self: stretch; }
+
+pre.yaml {
+  font-family: var(--font-mono);
+  font-size: 11.5px; line-height: 1.6;
+  margin: 0; white-space: pre; overflow-x: auto;
+  color: var(--text-primary);
+}
+.yl { display: block; padding: 0 5px; border-radius: 3px; transition: background 200ms ease; }
+.yl.hl { background: var(--accent-bg); }
+.yk { color: var(--accent); }
+.yc { color: var(--text-muted); }
+.ym { color: var(--warn-text); }
+
+.features { margin: 0; font-size: 13px; }
+.features dt {
+  font-family: var(--font-mono); font-size: 11.5px;
+  color: var(--text-primary); margin-top: 10px;
+}
+.features dt:first-child { margin-top: 0; }
+.features dt .kind {
+  font-family: var(--font-sans); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); margin-left: 6px;
+}
+.features dd { margin: 2px 0 0; color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; }
+
+/* ---------- notes ---------- */
+.notes-panel {
+  position: fixed; right: 0; top: 53px; bottom: 0; width: 340px;
+  background: var(--surface-1); border-left: 1px solid var(--border);
+  padding: 20px; overflow-y: auto; z-index: 15;
+}
+.notes-panel h2 { font-size: 15px; font-weight: 500; margin: 0 0 12px; }
+.notes-panel h3 { font-size: 13px; font-weight: 500; margin: 18px 0 6px; color: var(--accent); }
+.notes-panel p { font-size: 14px; color: var(--text-secondary); margin: 0 0 10px; }
+.notes-panel .ask {
+  font-size: 14px; color: var(--text-primary);
+  border-left: 2px solid var(--accent); padding-left: 10px; margin: 10px 0;
+}
+
+/* ---------- help ---------- */
+.help-overlay {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+}
+.help-card {
+  background: var(--surface-1); border-radius: 12px; padding: 24px 28px;
+  min-width: 320px; border: 1px solid var(--border);
+}
+.help-card h2 { margin: 0 0 14px; font-size: 16px; font-weight: 500; }
+.help-card dl { display: grid; grid-template-columns: 90px 1fr; gap: 6px 14px; margin: 0 0 18px; font-size: 14px; }
+.help-card dt { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+.help-card dd { margin: 0; color: var(--text-secondary); }
+
+/* ---------- presentation mode ----------
+   Hides all chrome and scales the canvas up. Everything stays in normal flow
+   so no element collapses; only visibility and sizing change. */
+body.presenting .topbar,
+body.presenting .sidebar,
+body.presenting .sidebar-resizer,
+body.presenting .stage-head,
+body.presenting .sidebar-foot { display: none; }
+body.presenting .layout { grid-template-columns: minmax(0, 1fr); }
+body.presenting .stage { max-width: none; padding: 28px 6vw; }
+body.presenting .note { font-size: 22px; }
+body.presenting .badge { font-size: 17px; }
+body.presenting .metric .m-value { font-size: 26px; }
+body.presenting .viewport { border: none; background: transparent; }
+body.presenting .notes-panel { top: 0; }
+
+@media (max-width: 720px) {
+  .config-col { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { position: static; height: auto; border-bottom: 1px solid var(--border); }
+  .sidebar-resizer { display: none; }
+  .anim-list { flex-direction: row; flex-wrap: wrap; }
+  .resource-list { border-top: none; margin-top: 8px; padding-top: 8px; }
+  .notes-panel { position: static; width: auto; border-left: none; border-top: 1px solid var(--border); }
+  .stage { padding: 20px 16px 48px; }
+}

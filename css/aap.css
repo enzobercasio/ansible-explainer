@@ -1,0 +1,115 @@
+/* AAP 2.7 System Map. Loaded after runner.css, which provides the chrome
+   (top bar, sidebar, transport, notes, help). Colours are tokens only. */
+
+.sidebar-foot a { color: var(--accent); }
+.map-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.seg { display: inline-flex; }
+.seg button {
+  font: inherit; font-size: 13px; padding: 6px 12px; cursor: pointer;
+  background: var(--surface-1); color: var(--text-primary);
+  border: 1px solid var(--border-strong); border-left-width: 0;
+}
+.seg button:first-child { border-left-width: 1px; border-radius: var(--radius) 0 0 var(--radius); }
+.seg button:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+.seg button[aria-checked="true"] { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+.seg .key { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); margin-right: 6px; }
+.fail-btn[aria-pressed="true"] { background: var(--bad-fill); color: var(--bad-text); border-color: var(--bad-stroke); }
+.failed-list { font-size: 12.5px; color: var(--bad-text); display: inline-flex; gap: 8px; align-items: center; }
+.failed-list button { font: inherit; font-size: 12px; padding: 2px 8px; border-radius: 999px; cursor: pointer; background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); }
+.caption { font-size: 13px; color: var(--text-secondary); margin: 8px 0 10px; min-height: 20px; }
+
+.map-pane { padding: 6px 8px; }
+#map { width: 100%; height: auto; display: block; }
+body.failing #map .node { cursor: crosshair; }
+#map .node { cursor: pointer; }
+
+/* nodes */
+.node rect.box { fill: var(--surface-1); stroke: var(--border-strong); stroke-width: 1.2; transition: fill 240ms, stroke 240ms, opacity 240ms; }
+.node text { font-family: var(--font-sans); fill: var(--text-primary); pointer-events: none; }
+.node .t { font-size: 13px; font-weight: 600; }
+.node .s { font-size: 10.5px; fill: var(--text-secondary); }
+.node.idle { opacity: 0.45; }
+.node.future rect.box { stroke-dasharray: 3 3; }
+.node.visited rect.box { fill: var(--run-fill); stroke: var(--run-stroke); }
+.node.hot rect.box { fill: var(--hot-fill); stroke: var(--hot-stroke); stroke-width: 2.2; }
+.node.hot text, .node.visited text { fill: var(--hot-fg); }
+.node.visited text { fill: var(--run-text); }
+.node.down rect.box { fill: var(--bad-fill); stroke: var(--bad-stroke); stroke-width: 2; stroke-dasharray: 5 3; }
+.node.down text { fill: var(--bad-fg); }
+.node.recover rect.box { fill: var(--term-fill); stroke: var(--term-stroke); stroke-width: 2; }
+.node.recover text { fill: var(--term-text); }
+.node.optional rect.box { stroke-dasharray: 2 4; fill: transparent; }
+.node.selected rect.box { stroke: var(--text-primary); stroke-width: 2.5; }
+.node.hot rect.box, .node.recover rect.box { animation: node-pulse calc(var(--frame-ms, 1700ms) * 0.8) ease-in-out both; }
+.inst rect { fill: var(--surface-2); stroke: var(--border-strong); stroke-width: 1; }
+.inst text { font-family: var(--font-mono); font-size: 9.5px; fill: var(--text-secondary); text-anchor: middle; }
+.inst.down rect { fill: var(--bad-stroke); stroke: var(--bad-stroke); }
+.inst.down text { fill: var(--surface-1); }
+.inst.on rect { fill: var(--hot-stroke); stroke: var(--hot-stroke); }
+.inst.on text { fill: var(--surface-1); }
+
+.boundary { fill: none; stroke: var(--text-muted); stroke-width: 1.2; stroke-dasharray: 7 5; }
+.zone-r { fill: var(--zone-fill); stroke: var(--border-strong); stroke-dasharray: 4 4; }
+.blabel { font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; fill: var(--text-muted); }
+
+/* edges */
+.edge { fill: none; stroke-width: 1.6; }
+.edge.future { stroke: var(--track); stroke-dasharray: 3 5; }
+.edge.done { stroke: var(--run-stroke); opacity: 0.55; }
+.edge.active { stroke: var(--packet); stroke-width: 2.6; stroke-dasharray: 7 4; animation: march 800ms linear infinite; }
+.edge.blocked { stroke: var(--bad-stroke); stroke-width: 2.6; stroke-dasharray: 3 3; }
+.mh.idle { fill: var(--track); } .mh.done { fill: var(--run-stroke); } .mh.active { fill: var(--packet); } .mh.blocked { fill: var(--bad-stroke); }
+.elabel rect { fill: var(--surface-1); stroke: var(--packet); stroke-width: 1; }
+.elabel text { font-family: var(--font-mono); font-size: 11px; fill: var(--packet); font-weight: 600; }
+.elabel.blocked rect { stroke: var(--bad-stroke); } .elabel.blocked text { fill: var(--bad-text); }
+.elabel.local rect { stroke: var(--hot-stroke); }
+.elabel.recover rect { stroke: var(--term-stroke); } .elabel.recover text { fill: var(--term-text); }
+.elabel { animation: pop 300ms ease-out both; }
+.packet circle { fill: var(--packet); stroke: var(--surface-1); stroke-width: 2; }
+.packet { offset-rotate: 0deg; animation: travel calc(var(--frame-ms, 1700ms) * 0.75) cubic-bezier(.45,.05,.35,1) both; }
+.xmark { stroke: var(--bad-stroke); stroke-width: 3; stroke-linecap: round; animation: pop 300ms ease-out both; }
+
+/* below the map */
+.below { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 12px; margin-top: 16px; align-items: stretch; }
+.panel-head { display: flex; align-items: baseline; gap: 10px; padding: 10px 14px 0; }
+.panel-head h2 { font-size: 12px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.panel-sub { font-size: 12px; color: var(--text-muted); }
+.seq-head { display: block; padding: 6px 8px 0; box-sizing: border-box; }
+.seq-wrap { max-height: 300px; overflow: auto; padding: 4px 8px 10px; scroll-behavior: smooth; }
+#seq text { font-family: var(--font-sans); }
+.lane-h rect { fill: var(--surface-2); stroke: var(--border); }
+.lane-h text { font-size: 11px; font-weight: 600; fill: var(--text-primary); text-anchor: middle; }
+.lane { stroke: var(--border-strong); stroke-dasharray: 2 4; }
+.srow .num { font-family: var(--font-mono); font-size: 10px; fill: var(--text-muted); }
+.srow .lbl { font-family: var(--font-mono); font-size: 10.5px; fill: var(--text-secondary); text-anchor: middle; }
+.srow line, .srow path { stroke: var(--text-secondary); stroke-width: 1.3; fill: none; }
+.srow .self { fill: var(--surface-2); stroke: var(--border-strong); }
+.srow.future { opacity: 0.3; }
+.srow.done line, .srow.done path { stroke: var(--run-stroke); }
+.srow.cur .bg { fill: var(--accent-bg); }
+.srow.cur line, .srow.cur path { stroke: var(--packet); stroke-width: 2; }
+.srow.cur .lbl { fill: var(--packet); font-weight: 600; }
+.srow.cur .self { fill: var(--hot-fill); stroke: var(--hot-stroke); }
+.srow.blocked line { stroke: var(--bad-stroke); stroke-dasharray: 3 3; }
+.srow.blocked .lbl { fill: var(--bad-text); }
+.srow.recover .self { fill: var(--term-fill); stroke: var(--term-stroke); }
+.srow .bg { fill: transparent; }
+.sa { fill: var(--text-secondary); } .srow.cur .sa { fill: var(--packet); } .srow.done .sa { fill: var(--run-stroke); } .srow.blocked .sa { fill: var(--bad-stroke); }
+
+.info-pane { padding-bottom: 12px; }
+.info-body { font-size: 14px; color: var(--text-secondary); margin: 8px 14px 6px; line-height: 1.55; }
+.info-hint { font-size: 12px; color: var(--text-muted); margin: 0 14px; }
+.pill { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-secondary); }
+.pill.down { background: var(--bad-fill); color: var(--bad-text); }
+.pill.ok { background: var(--run-fill); color: var(--run-text); }
+
+body.presenting .below { display: none; }
+body.presenting .map-pane { border: none; background: transparent; }
+
+@keyframes march { to { stroke-dashoffset: -22; } }
+@keyframes travel { from { offset-distance: 0%; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } to { offset-distance: 100%; opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
+@keyframes node-pulse { 0%, 100% { stroke-width: 2.2; } 50% { stroke-width: 4; } }
+@media (prefers-reduced-motion: reduce) { .packet { display: none; } }
+
+@media (max-width: 1000px) { .below { grid-template-columns: minmax(0, 1fr); } }

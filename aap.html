@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AAP 2.7 System Map — Ansible explained</title>
+<meta name="description" content="A fixed map of the Red Hat Ansible Automation Platform 2.7 architecture. Trace a request across it, switch topology, and fail a component to see what keeps working.">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/runner.css">
+<link rel="stylesheet" href="css/aap.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span><a href="index.html" class="home">Ansible explained</a> <span class="brand-dim">— Part 2 · AAP 2.7 System Map</span></span>
+  </div>
+  <div class="topbar-actions">
+    <a class="icon-btn" href="runner.html" title="Part 1: the Playbook Runner">← Part 1 · Playbook Runner</a>
+    <button id="btn-notes" class="icon-btn" aria-pressed="false" title="Speaker notes (n)">Notes</button>
+    <button id="btn-theme" class="icon-btn" title="Toggle light/dark (t)">Theme</button>
+    <button id="btn-present" class="icon-btn" aria-pressed="false" title="Presentation mode (f)">Present</button>
+    <button id="btn-help" class="icon-btn" title="Keyboard shortcuts (?)">?</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Journeys">
+    <p class="group-label">Trace a journey</p>
+    <ol id="journeys" class="chapters"></ol>
+    <p class="sidebar-foot">
+      The map never moves. Each journey lights up its own path across it, so the
+      layout you learn on the first journey holds for every other one.
+    </p>
+    <p class="sidebar-foot">Deep-link any moment:<br><code>#journey/topology/failed/step</code></p>
+    <p class="sidebar-foot">Pinned to the AAP 2.7 release notes. Check the
+      <a href="https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7" target="_blank" rel="noopener">official docs</a>
+      before quoting ports or sizing to a customer.</p>
+  </nav>
+
+  <main class="stage">
+    <div class="stage-head">
+      <h1 id="title">Loading…</h1>
+      <p id="summary" class="summary"></p>
+    </div>
+
+    <div class="map-bar">
+      <div id="topos" class="seg" role="radiogroup" aria-label="Topology"></div>
+      <button id="btn-fail" class="icon-btn fail-btn" aria-pressed="false" title="Then click components to fail them (x)">⚡ Fail a component</button>
+      <span id="failed" class="failed-list"></span>
+    </div>
+    <p id="topo-caption" class="caption"></p>
+
+    <div class="pane map-pane">
+      <svg id="map" viewBox="0 0 1000 400" role="img" aria-labelledby="map-title">
+        <title id="map-title">AAP 2.7 architecture map</title>
+        <defs>
+          <marker id="m-idle" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="mh idle" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="m-done" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="mh done" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="m-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mh active" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="m-blocked" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mh blocked" d="M0 0 L10 5 L0 10 z"/></marker>
+        </defs>
+        <g id="map-scene"></g>
+      </svg>
+    </div>
+
+    <div class="narration">
+      <p id="note" class="note"></p>
+      <p id="badge" class="badge"></p>
+    </div>
+
+    <div class="controls">
+      <div class="transport">
+        <button id="btn-play" class="play-btn" aria-label="Play or pause">▶</button>
+        <button id="btn-prev" class="icon-btn" aria-label="Previous step">←</button>
+        <button id="btn-next" class="icon-btn" aria-label="Next step">→</button>
+        <input id="scrub" type="range" min="0" max="0" step="1" value="0" aria-label="Scrub through steps">
+        <span id="counter" class="counter">1 / 1</span>
+        <label class="speed">Speed
+          <select id="speed" aria-label="Playback speed">
+            <option value="2600">slow</option>
+            <option value="1700" selected>normal</option>
+            <option value="900">fast</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <section class="below">
+      <div class="pane seq-pane">
+        <div class="panel-head"><h2>Sequence</h2><span class="panel-sub">every call in this journey, in order</span></div>
+        <svg id="seq-head" class="seq-head" width="100%" aria-hidden="true"></svg>
+        <div id="seq-wrap" class="seq-wrap"><svg id="seq" width="100%" role="img" aria-label="Sequence diagram"></svg></div>
+      </div>
+      <aside class="pane info-pane" aria-live="polite">
+        <div class="panel-head"><h2 id="info-title">Component</h2><span id="info-state" class="pill"></span></div>
+        <p id="info-body" class="info-body"></p>
+        <p class="info-hint">Click any component on the map. With ⚡ on, a click fails it instead.</p>
+      </aside>
+    </section>
+  </main>
+
+  <aside id="notes-panel" class="notes-panel" hidden aria-label="Speaker notes">
+    <h2>Speaker notes</h2>
+    <div id="notes-body"></div>
+  </aside>
+</div>
+
+<div id="help" class="help-overlay" hidden role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="help-card">
+    <h2>Keyboard</h2>
+    <dl>
+      <dt>Space</dt><dd>play / pause — at the end, moves to the next journey</dd>
+      <dt>← →</dt><dd>step back / forward</dd>
+      <dt>Home / End</dt><dd>first / last step</dd>
+      <dt>J / K</dt><dd>previous / next journey</dd>
+      <dt>1 2 3</dt><dd>growth / enterprise / operator</dd>
+      <dt>X</dt><dd>fail-a-component mode</dd>
+      <dt>C</dt><dd>clear failures</dd>
+      <dt>N T F</dt><dd>notes · theme · presentation mode</dd>
+      <dt>Esc</dt><dd>close / leave presentation</dd>
+    </dl>
+    <button id="help-close" class="icon-btn">Close</button>
+  </div>
+</div>
+
+<noscript><p style="padding:2rem">The System Map is rendered client-side and needs JavaScript enabled.</p></noscript>
+<script type="module" src="js/aap/app.js"></script>
+</body>
+</html>

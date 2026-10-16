@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ansible explained</title>
+<meta name="description" content="Ansible from first principles to the Red Hat Ansible Automation Platform 2.7 architecture: a Playbook Runner for the basics and a System Map for the platform.">
+<link rel="stylesheet" href="css/tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font-sans); color: var(--text-primary); background: var(--surface-0); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 56px 24px 64px; }
+  .mark { width: 34px; height: 34px; border-radius: 50%; background: var(--text-primary); color: var(--surface-1); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 19px; }
+  h1 { font-size: 34px; font-weight: 600; margin: 18px 0 8px; letter-spacing: -0.01em; }
+  .lede { font-size: 18px; color: var(--text-secondary); max-width: 62ch; margin: 0 0 36px; line-height: 1.55; }
+  .parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .part { display: flex; flex-direction: column; text-decoration: none; color: inherit; background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 22px 22px 20px; transition: border-color 160ms, transform 160ms; }
+  .part:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .part h2 { font-size: 22px; font-weight: 600; margin: 6px 0 8px; }
+  .part p { font-size: 15px; color: var(--text-secondary); margin: 0 0 14px; line-height: 1.55; }
+  .part ul { margin: 0 0 18px; padding-left: 18px; font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+  .go { margin-top: auto; font-weight: 600; color: var(--accent); font-size: 15px; }
+  .preview { height: 120px; border-radius: 10px; margin-bottom: 16px; overflow: hidden; display: grid; gap: 6px; padding: 8px; background: var(--surface-2); }
+  .pv-runner { grid-template-columns: 1fr 1.2fr; }
+  .pv-code { background: var(--surface-1); border-radius: 6px; padding: 8px; font-family: var(--font-mono); font-size: 9.5px; line-height: 1.6; color: var(--text-secondary); white-space: pre; overflow: hidden; }
+  .pv-code b { display: block; background: var(--accent-bg); color: var(--accent); font-weight: 500; }
+  .pv-tty { background: var(--tty-bg); border-radius: 6px; padding: 8px; font-family: var(--font-mono); font-size: 9.5px; line-height: 1.6; white-space: pre; overflow: hidden; color: var(--tty-fg); }
+  .pv-tty .o { color: var(--tty-ok); } .pv-tty .c { color: var(--tty-chg); }
+  .pv-map { position: relative; }
+  .pv-map svg { width: 100%; height: 100%; }
+  .pv-map rect { fill: var(--surface-1); stroke: var(--border-strong); }
+  .pv-map rect.on { fill: var(--hot-fill); stroke: var(--hot-stroke); }
+  .pv-map path { stroke: var(--packet); stroke-width: 2; stroke-dasharray: 5 3; fill: none; }
+  .foot { margin-top: 30px; font-size: 14px; color: var(--text-muted); }
+  .foot a { color: var(--accent); }
+  @media (max-width: 760px) { .parts { grid-template-columns: minmax(0, 1fr); } h1 { font-size: 28px; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <span class="mark" aria-hidden="true">A</span>
+  <h1>Ansible explained</h1>
+  <p class="lede">From the first SSH round trip to the Red Hat Ansible Automation Platform 2.7 architecture,
+    in two interactive parts built for presenting. Press Space to move through either one.</p>
+
+  <div class="parts">
+    <a class="part" href="runner.html">
+      <div class="preview pv-runner" aria-hidden="true">
+        <div class="pv-code">- name: Web servers
+  hosts: web
+  tasks:
+<b>    - name: Install nginx</b><b>      ansible.builtin.dnf:</b>        name: nginx</div>
+        <div class="pv-tty">TASK [Install nginx] ****
+<span class="c">changed: [web1]</span>
+<span class="c">changed: [web2]</span>
+
+PLAY RECAP **************
+<span class="o">web1 : ok=2 changed=1</span></div>
+      </div>
+      <span class="kicker">Part 1 · Ansible basics</span>
+      <h2>Playbook Runner</h2>
+      <p>Real playbooks run against a simulated fleet: the cursor on the task being executed, hosts changing state, and <code>ansible-playbook</code> output in a terminal.</p>
+      <ul>
+        <li>Agentless SSH, inventories and variable precedence</li>
+        <li>Run order, failures and <code>--check</code></li>
+        <li>Idempotency, drift, facts, handlers, roles and collections</li>
+      </ul>
+      <span class="go">Open the Runner →</span>
+    </a>
+
+    <a class="part" href="aap.html">
+      <div class="preview pv-map" aria-hidden="true">
+        <svg viewBox="0 0 300 104">
+          <rect x="4" y="38" width="44" height="26" rx="5"/>
+          <rect class="on" x="72" y="10" width="54" height="84" rx="6"/>
+          <rect x="150" y="10" width="62" height="22" rx="5"/>
+          <rect x="150" y="40" width="62" height="22" rx="5"/>
+          <rect x="150" y="70" width="62" height="22" rx="5"/>
+          <rect class="on" x="236" y="26" width="58" height="26" rx="5"/>
+          <path d="M48 51 L70 51"/><path d="M126 30 L148 22"/><path d="M212 22 L234 34"/>
+        </svg>
+      </div>
+      <span class="kicker">Part 2 · AAP 2.7 architecture</span>
+      <h2>System Map</h2>
+      <p>One fixed map of the platform. Trace a request across it, switch between growth, enterprise and Operator topologies, and fail any component to see what keeps working.</p>
+      <ul>
+        <li>The gateway as the only front door in 2.7</li>
+        <li>Launching a job, event-driven remediation, remote sites</li>
+        <li>Execution environments and private automation hub</li>
+      </ul>
+      <span class="go">Open the System Map →</span>
+    </a>
+  </div>
+
+  <p class="foot">Prefer the earlier animated diagrams? They are still here: <a href="classic.html">classic version</a>.
+    Simplified for teaching — check the <a href="https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7" target="_blank" rel="noopener">AAP 2.7 documentation</a> for specifics.</p>
+</main>
+<script>
+  try {
+    const t = localStorage.getItem('theme');
+    if (t) document.documentElement.dataset.theme = t;
+    else if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark';
+  } catch (e) { /* ignore */ }
+</script>
+</body>
+</html>

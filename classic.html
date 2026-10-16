@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ansible explained — classic diagrams</title>
+<meta name="description" content="Animated explainers for Ansible: control nodes, inventories, playbooks, idempotency, variables, handlers and roles - then the Red Hat Ansible Automation Platform 2.7 architecture.">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span><a href="index.html" style="color:inherit;text-decoration:none">Ansible explained</a> <span class="brand-dim">— classic diagrams</span></span>
+  </div>
+  <div class="topbar-actions">
+    <a class="icon-btn" href="runner.html" title="Part 1: step through real playbooks">Part 1 · Runner</a>
+    <a class="icon-btn" href="aap.html" title="Part 2: the AAP 2.7 System Map">Part 2 · System Map</a>
+    <div id="level-switch" class="level-switch" role="radiogroup" aria-label="Audience level">
+      <button id="btn-level-beginner" class="icon-btn" role="radio" aria-checked="false" title="Show Ansible basics only (b)">Beginner</button>
+      <button id="btn-level-advanced" class="icon-btn" role="radio" aria-checked="true" title="Show everything (b)">Advanced</button>
+    </div>
+    <button id="btn-notes" class="icon-btn" aria-pressed="false" title="Speaker notes (n)">Notes</button>
+    <button id="btn-theme" class="icon-btn" title="Toggle light/dark (t)">Theme</button>
+    <button id="btn-present" class="icon-btn" title="Presentation mode (f)">Present</button>
+    <button id="btn-help" class="icon-btn" title="Keyboard shortcuts (?)">?</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <nav class="sidebar" aria-label="Animations">
+    <ul id="anim-list" class="anim-list"></ul>
+    <button id="level-hint" class="level-hint" hidden></button>
+
+    <ul class="anim-list resource-list" aria-label="Resources">
+      <li class="group-label" role="presentation">Resources</li>
+      <li><a class="sidebar-link" href="https://docs.ansible.com/ansible/latest/getting_started/index.html" target="_blank" rel="noopener">Ansible getting started ↗</a></li>
+      <li><a class="sidebar-link" href="https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7" target="_blank" rel="noopener">AAP 2.7 documentation ↗</a></li>
+    </ul>
+
+    <p class="sidebar-foot">
+      Deep-link any frame:<br>
+      <code>#id/mode/step</code>
+    </p>
+
+    <p class="sidebar-foot">
+      These are simplified explainers. Always consult the <a href="https://docs.ansible.com/" target="_blank" rel="noopener">Ansible documentation</a> and the Red Hat Ansible Automation Platform docs to verify current features and behavior.
+    </p>
+  </nav>
+
+  <div id="sidebar-resizer" class="sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Resize sidebar" tabindex="0" title="Drag to resize, double-click to reset"></div>
+
+  <main class="stage">
+    <div class="stage-head">
+      <h1 id="anim-title">Loading…</h1>
+      <p id="anim-summary" class="summary"></p>
+    </div>
+
+    <div id="mode-tabs" class="tabs" role="tablist" aria-label="Scenario"></div>
+    <p id="mode-caption" class="caption"></p>
+
+    <div id="viewport" class="viewport" aria-live="polite">
+      <svg id="canvas" viewBox="0 0 680 350" role="img" aria-labelledby="canvas-title canvas-desc">
+        <title id="canvas-title">Animation canvas</title>
+        <desc id="canvas-desc"></desc>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-head" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-head active" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="arrow-blocked" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-head blocked" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="arrow-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-head ok" d="M0 0 L10 5 L0 10 z"/></marker>
+        </defs>
+        <g id="scene"></g>
+      </svg>
+    </div>
+
+    <div id="metrics" class="metrics"></div>
+
+    <div class="narration">
+      <p id="note" class="note"></p>
+      <p id="badge" class="badge"></p>
+    </div>
+
+    <div class="transport">
+      <button id="btn-play" class="play-btn" aria-label="Play or pause">▶</button>
+      <button id="btn-prev" class="icon-btn" aria-label="Previous step">←</button>
+      <button id="btn-next" class="icon-btn" aria-label="Next step">→</button>
+      <input id="scrub" type="range" min="0" max="1" step="1" value="0" aria-label="Scrub through steps">
+      <span id="counter" class="counter">1 / 1</span>
+      <label class="speed">
+        Speed
+        <select id="speed" aria-label="Playback speed">
+          <option value="2600">slow</option>
+          <option value="1800" selected>normal</option>
+          <option value="1000">fast</option>
+        </select>
+      </label>
+    </div>
+
+    <aside class="config-col" aria-label="Code and concepts">
+      <section class="config-panel" id="yaml-panel">
+        <div class="panel-head">
+          <h2>The code</h2>
+          <button id="yaml-copy" class="icon-btn tiny" title="Copy this code">Copy</button>
+        </div>
+        <pre class="yaml"><code id="yaml-code"></code></pre>
+      </section>
+
+      <section class="config-panel" id="features-panel">
+        <div class="panel-head"><h2>Concepts in play</h2></div>
+        <dl id="features-list" class="features"></dl>
+      </section>
+    </aside>
+
+  </main>
+
+  <aside id="notes-panel" class="notes-panel" hidden aria-label="Speaker notes">
+    <h2>Speaker notes</h2>
+    <div id="notes-body"></div>
+  </aside>
+
+</div>
+
+<div id="help" class="help-overlay" hidden role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="help-card">
+    <h2>Keyboard</h2>
+    <dl>
+      <dt>Space</dt><dd>play / pause</dd>
+      <dt>← →</dt><dd>step back / forward</dd>
+      <dt>Home / End</dt><dd>first / last step</dd>
+      <dt>1 – 9</dt><dd>switch scenario</dd>
+      <dt>J / K</dt><dd>previous / next animation</dd>
+      <dt>B</dt><dd>beginner / advanced</dd>
+      <dt>N</dt><dd>speaker notes</dd>
+      <dt>T</dt><dd>light / dark</dd>
+      <dt>F</dt><dd>presentation mode</dd>
+      <dt>R</dt><dd>reset to first step</dd>
+      <dt>Esc</dt><dd>close / leave presentation</dd>
+    </dl>
+    <button id="help-close" class="icon-btn">Close</button>
+  </div>
+</div>
+
+<noscript>
+  <p style="padding:2rem">These explainers are rendered client-side and need JavaScript enabled.</p>
+</noscript>
+
+<script type="module" src="js/player.js"></script>
+</body>
+</html>
